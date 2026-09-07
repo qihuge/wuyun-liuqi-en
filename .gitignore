@@ -1,0 +1,12 @@
+﻿# 临时文件
+*.cjs
+temp_*.js
+screenshot.png
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/

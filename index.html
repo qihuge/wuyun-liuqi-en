@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WuYun LiuQi BianZheng - Five Movements & Six Qi Diagnosis</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #f5f0e8 0%, #e8e2d8 100%);
+    min-height: 100vh;
+    color: #3a3226;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 20px; }
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 0; border-bottom: 2px solid #b8a888; margin-bottom: 24px;
+  }
+  .brand { display:flex; align-items:center; gap:12px; }
+  .brand-icon {
+    width: 44px; height:44px; border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, #c9a24f, #8a5a2b);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .brand h1 { font-size: 20px; font-weight: 700; }
+  .brand p { font-size: 12px; color: #8a7a5e; }
+  .lang-toggle {
+    display:flex; background:#e0d6c4; border-radius:20px; padding:3px; gap:2px;
+  }
+  .lang-toggle button {
+    border:none; background:transparent; padding:6px 16px; border-radius:18px;
+    cursor:pointer; font-size:14px; color:#6a5a3e; transition: all .2s;
+  }
+  .lang-toggle button.active { background:#8a5a2b; color:#fff; font-weight:600; }
+  .card {
+    background:#fff; border-radius:16px; padding:24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom:20px;
+  }
+  .card h2 {
+    font-size:16px; color:#8a5a2b; margin-bottom:16px; padding-bottom:8px;
+    border-bottom:1px solid #eee0cc; display:flex; align-items:center; gap:8px;
+  }
+  .form-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:14px; }
+  .field label { display:block; font-size:13px; color:#7a6a4e; margin-bottom:6px; }
+  .field input, .field select {
+    width:100%; padding:10px 12px; border:1.5px solid #d8cbb2; border-radius:8px;
+    font-size:15px; background:#fdfbf7; color:#3a3226; outline:none;
+  }
+  .field input:focus, .field select:focus { border-color:#8a5a2b; }
+  .btn-primary {
+    width:100%; margin-top:18px; padding:14px; background:#8a5a2b; color:#fff;
+    border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer;
+    transition: background .2s;
+  }
+  .btn-primary:hover { background:#6e4620; }
+  .result-section { margin-bottom:20px; }
+  .result-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px; }
+  .result-item { background:#faf6ee; border-radius:10px; padding:14px; }
+  .result-item .k { font-size:12px; color:#9a8a6e; margin-bottom:4px; }
+  .result-item .v { font-size:15px; font-weight:600; color:#4a3a26; }
+  .ganzhi-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .ganzhi-box {
+    background:#faf6ee; border:1.5px solid #e0d0b4; border-radius:10px; padding:10px 14px; text-align:center; min-width:90px;
+  }
+  .ganzhi-box .label { font-size:11px; color:#9a8a6e; }
+  .ganzhi-box .value { font-size:17px; font-weight:700; color:#5a3a1a; margin-top:4px; }
+  .disclaimer {
+    background:#fdf6ec; border-left:4px solid #c9a24f; padding:12px 16px; border-radius:0 10px 10px 0;
+    font-size:12px; color:#7a6a4e; line-height:1.6; margin-top:16px;
+  }
+  .footer { text-align:center; padding:24px 0 12px; color:#9a8a6e; font-size:12px; }
+  .error-box { background:#fdecea; color:#b02a2a; padding:12px 16px; border-radius:10px; margin-top:12px; }
+  @media (max-width:600px){ .container{padding:12px;} .card{padding:16px;} }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <div class="brand-icon">炁</div>
+      <div>
+        <h1 data-i18n="app_title">五运六气辨证</h1>
+        <p data-i18n="app_subtitle">五运六气 · 八纲辨证 智能辅助</p>
+      </div>
+    </div>
+    <div class="lang-toggle">
+      <button id="btn-zh" class="active">中文</button>
+      <button id="btn-en">EN</button>
+    </div>
+  </header>
+
+  <!-- 输入区 -->
+  <div class="card">
+    <h2><span data-i18n="birth_title">出生信息</span></h2>
+    <div class="form-grid">
+      <div class="field">
+        <label data-i18n="birth_year">出生年</label>
+        <input type="number" id="year" placeholder="1985" value="1985" min="1900" max="2100">
+      </div>
+      <div class="field">
+        <label data-i18n="birth_month">出生月</label>
+        <input type="number" id="month" placeholder="6" value="6" min="1" max="12">
+      </div>
+      <div class="field">
+        <label data-i18n="birth_day">出生日</label>
+        <input type="number" id="day" placeholder="15" value="15" min="1" max="31">
+      </div>
+      <div class="field">
+        <label data-i18n="birth_hour">出生时（0-23）</label>
+        <input type="number" id="hour" placeholder="10" value="10" min="0" max="23">
+      </div>
+      <div class="field">
+        <label data-i18n="gender">性别</label>
+        <select id="gender">
+          <option value="M" data-i18n="male">男</option>
+          <option value="F" data-i18n="female">女</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 发病时间（可选） -->
+    <div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px;">
+      <div style="font-weight:600;color:#8a5a2b;font-size:14px;margin-bottom:8px;">📅 <span data-i18n="onset_title">发病时间（可选）</span></div>
+      <div class="form-grid">
+        <div class="field"><label data-i18n="onset_year">发病年</label><input type="number" id="onset-year" placeholder="2026" min="1900" max="2100"></div>
+        <div class="field"><label data-i18n="onset_month">发病月</label><input type="number" id="onset-month" placeholder="9" min="1" max="12"></div>
+        <div class="field"><label data-i18n="onset_day">发病日</label><input type="number" id="onset-day" placeholder="6" min="1" max="31"></div>
+      </div>
+    </div>
+
+    
+    <!-- 四诊合参（可折叠） -->
+    <div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px;">
+      <div id="four-zhen-toggle" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#8a5a2b;font-weight:600;font-size:14px;">
+        <span>🩺 <span data-i18n="four_zhen_title">四诊合参（可选填）</span></span>
+        <span id="four-zhen-arrow">▲</span>
+      </div>
+      <div id="four-zhen-content" style="display:block;margin-top:12px;">
+        <!-- 望诊 -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px;">望诊 Observation</div>
+          <div class="form-grid">
+            <div class="field"><label>Tongue Color</label>
+              <select id="wang-tongue-color"><option value="">正常 Normal</option><option value="淡白">淡白 Pale White</option><option value="淡红">淡红 Pale Red</option><option value="红">红 Red</option><option value="绛">绛 Deep Red</option><option value="紫暗">紫暗 Purple-Dark</option></select>
+            </div>
+            <div class="field"><label>Coating Color</label>
+              <select id="wang-coating-color"><option value="">正常 Normal</option><option value="白">白 White</option><option value="黄">黄 Yellow</option><option value="灰">灰 Gray</option><option value="黑">黑 Black</option></select>
+            </div>
+            <div class="field"><label>Coating Thickness</label>
+              <select id="wang-coating-thickness"><option value="">正常 Normal</option><option value="薄">薄 Thin</option><option value="厚">厚 Thick</option><option value="腻">腻 Greasy</option><option value="腐">腐 Curd-like</option><option value="无苔">无苔 No Coating</option></select>
+            </div>
+            <div class="field"><label>Face Color</label>
+              <select id="wang-face-color"><option value="">正常 Normal</option><option value="白">白 White</option><option value="黄">黄 Yellow</option><option value="红">红 Red</option><option value="青">青 Blue-Green</option><option value="黑">黑 Black</option></select>
+            </div>
+            <div class="field"><label>Nail Color</label>
+              <select id="wang-nail-color"><option value="">正常 Normal</option><option value="淡白">淡白 Pale White</option><option value="淡红">淡红 Pale Red</option><option value="红">红 Red</option><option value="紫暗">紫暗 Purple-Dark</option></select>
+            </div>
+          </div>
+        </div>
+        <!-- 闻诊 -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px;">闻诊 Hearing & Smelling</div>
+          <div class="form-grid">
+            <div class="field"><label>Voice</label>
+              <select id="wen-voice"><option value="">正常 Normal</option><option value="洪亮">洪亮 Loud</option><option value="低微">低微 Low/Weak</option><option value="嘶哑">嘶哑 Hoarse</option><option value="懒言">懒言 Reluctant to Speak</option></select>
+            </div>
+            <div class="field"><label>Odor</label>
+              <select id="wen-smell"><option value="">无特殊 None</option><option value="口臭">口臭 Bad Breath</option><option value="身臭">身臭 Body Odor</option></select>
+            </div>
+          </div>
+        </div>
+        <!-- 问诊 -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px;">问诊 Inquiry</div>
+          <div class="form-grid">
+            <div class="field"><label>Stool</label>
+              <select id="wen2-stool"><option value="">正常 Normal</option><option value="干">干 Dry</option><option value="稀">稀 Loose</option><option value="便秘">便秘 Constipation</option><option value="泄泻">泄泻 Diarrhea</option><option value="先干后稀">先干后稀 Dry then Loose</option><option value="大便溏薄">大便溏薄 Thin Stool</option></select>
+            </div>
+            <div class="field"><label>Urine</label>
+              <select id="wen2-urine"><option value="">正常 Normal</option><option value="清">清 Clear</option><option value="赤">赤 Reddish</option><option value="浑浊">浑浊 Turbid</option><option value="血尿">血尿 Hematuria</option></select>
+            </div>
+            <div class="field"><label>Appetite</label>
+              <select id="wen2-appetite"><option value="">好 Good</option><option value="差">差 Poor</option><option value="食欲不振">食欲不振 Loss of Appetite</option><option value="易饥">易饥 Easy Hunger</option><option value="厌食">厌食 Anorexia</option></select>
+            </div>
+            <div class="field"><label>Sleep</label>
+              <select id="wen2-sleep"><option value="">正常 Normal</option><option value="差">差 Poor</option><option value="失眠">失眠 Insomnia</option><option value="多梦">多梦 Dreamful</option><option value="易醒">易醒 Easy to Wake</option><option value="嗜睡">嗜睡 Somnolence</option></select>
+            </div>
+            <div class="field"><label>Cold & Heat</label>
+              <select id="wen2-coldheat"><option value="">正常 Normal</option><option value="怕冷">怕冷 Aversion to Cold</option><option value="怕热">怕热 Aversion to Heat</option><option value="寒热往来">寒热往来 Alternating Chills & Fever</option><option value="既怕冷又怕热">既怕冷又怕热 Both Cold & Heat Intolerance</option></select>
+            </div>
+            <div class="field"><label>Thirst</label>
+              <select id="wen2-thirst"><option value="">正常 Normal</option><option value="口不渴">口不渴 Not Thirsty</option><option value="口渴喜冷饮">口渴喜冷饮 Thirsty for Cold Drinks</option><option value="口渴喜热饮">口渴喜热饮 Thirsty for Hot Drinks</option><option value="渴不欲饮">渴不欲饮 Thirsty but No Desire to Drink</option></select>
+            </div>
+            <div class="field"><label>Sweating</label>
+              <select id="wen2-sweat"><option value="">正常 Normal</option><option value="无汗">无汗 No Sweat</option><option value="自汗">自汗 Spontaneous Sweating</option><option value="盗汗">盗汗 Night Sweating</option><option value="头汗">头汗 Head Sweating</option><option value="手足汗">手足汗 Hands & Feet Sweating</option></select>
+            </div>
+          </div>
+        </div>
+        <!-- 切诊 -->
+        <div style="margin-bottom:8px;">
+          <div style="font-size:13px;font-weight:600;color:#666;margin-bottom:8px;">切诊 Pulse</div>
+          <div class="form-grid">
+            <div class="field"><label>Pulse Type</label>
+              <select id="qie-pulse"><option value="">正常/缓脉 Normal / Gentle Pulse</option><option value="浮">浮 Floating</option><option value="沉">沉 Deep</option><option value="迟">迟 Slow</option><option value="数">数 Rapid</option><option value="虚">虚 Deficient</option><option value="实">实 Excess</option><option value="滑">滑 Slippery</option><option value="涩">涩 Rough</option><option value="洪">洪 Surging</option><option value="细">细 Fine</option><option value="弦">弦 Wiry</option><option value="紧">紧 Tight</option><option value="濡">濡 Soft</option><option value="弱">弱 Weak</option><option value="微">微 Faint</option><option value="缓">缓 Gentle</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-diagnose" onclick="runDiagnosis()" data-i18n="start_diagnosis">开始辨证</button>
+    <div id="error-box" class="error-box" style="display:none"></div>
+  </div>
+
+  <!-- 结果区 -->
+  <div id="result-area" style="display:none">
+    <!-- 出生干支 -->
+    <div class="card">
+      <h2><span data-i18n="birth_ganzhi">出生干支</span></h2>
+      <div class="ganzhi-row" id="birth-ganzhi"></div>
+      <div id="lunar-date" style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;"></div>
+    </div>
+
+    <!-- 五运六气 -->
+    <div class="card">
+      <h2><span data-i18n="yunqi_analysis">五运六气分析</span></h2>
+      <div id="yunqi-detail"></div>
+    </div>
+
+    <!-- 主运客运 -->
+    <div class="card">
+      <h2><span data-i18n="wuyun_analysis">五运六气完整分析</span></h2>
+      <div id="wuyun-detail"></div>
+    </div>
+
+    <!-- 动态郁点 -->
+    <div class="card" id="yudian-card" style="display:none;">
+      <h2><span data-i18n="dynamic_yudian_title">六气刹车动态郁点演算</span></h2>
+      <div id="yudian-detail"></div>
+    </div>
+
+    <!-- 六气治则 -->
+    <div class="card" id="liuqi-rule-card" style="display:none;">
+      <h2><span data-i18n="liuqi_rule_title">五运六气治则</span></h2>
+      <div id="liuqi-rule-detail"></div>
+    </div>
+
+    <!-- 八纲辨证 -->
+    <div class="card">
+      <h2><span data-i18n="bagang_title">八纲辨证</span></h2>
+      <div id="bagang-detail"></div>
+    </div>
+
+    <!-- 方剂详情 -->
+    <div class="card" id="tangtou-card" style="display:none;">
+      <h2><span data-i18n="tangtou_title">方剂详情</span></h2>
+      <div id="tangtou-detail"></div>
+    </div>
+
+  </div>
+
+  <div class="disclaimer">
+    <strong data-i18n="disclaimer_title">免责声明</strong>
+    <span data-i18n="disclaimer_text">本项目为传统医学文化的算法化研究与教学演示，不构成任何医疗建议。所有输出仅供研究、学习与讨论，不能替代专业医师的诊断与治疗。</span>
+  </div>
+  <!-- 支持这个项目 -->
+  <div style="margin-top:20px;padding:16px;background:#faf6f0;border-radius:8px;border:1px solid #e8dcc8;text-align:center;">
+    <div style="font-size:15px;font-weight:600;color:#8a5a2b;margin-bottom:8px;">
+      💚 <span data-i18n="support_title">支持这个项目</span>
+    </div>
+    <div style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.6;">
+      <span data-i18n="support_text">本项目完全开源免费。如果对你有帮助，欢迎关注作者的微信公众号，获取更多五运六气与传统文化研究内容。</span>
+    </div>
+    <a href="https://mp.weixin.qq.com/s/yGwinjBULJ6AA-MTbmrYiA" target="_blank" rel="noopener noreferrer"
+       style="display:inline-block;padding:8px 20px;background:#8a5a2b;color:#fff;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500;transition:background 0.2s;"
+       onmouseover="this.style.background='#6b4420'" onmouseout="this.style.background='#8a5a2b'">
+      📖 <span data-i18n="support_button">关注微信公众号：柒虎哥</span>
+    </a>
+  </div>
+
+  <div class="footer">WuYun LiuQi BianZheng © 2026 柒虎哥 (QiHuGe) · <span data-i18n="open_source">开源项目 · MIT License</span></div>
+</div>
+
+<script src="bundle.js"></script>
+<script>
+(function() {
+  'use strict';
+  var Engine = window.WuYunEngine;
+  var currentLang = 'en';  // 默认英文，便于境外用户直接使用
+  var lastResult = null;
+
+  // 页面内 i18n 字典：key -> {zh, en}
+  var DICT = {
+    app_title: { zh: '五运六气辨证', en: 'WuYun LiuQi BianZheng' },
+    app_subtitle: { zh: '五运六气 · 八纲辨证 智能辅助', en: 'Five Movements & Six Qi · Intelligent TCM Diagnosis Assistant' },
+    birth_title: { zh: '出生信息', en: 'Birth Information' },
+    birth_year: { zh: '出生年', en: 'Birth Year' },
+    birth_month: { zh: '出生月', en: 'Birth Month' },
+    birth_day: { zh: '出生日', en: 'Birth Day' },
+    birth_hour: { zh: '出生时（0-23）', en: 'Birth Hour (0-23)' },
+    gender: { zh: '性别', en: 'Gender' },
+    male: { zh: '男', en: 'Male' },
+    female: { zh: '女', en: 'Female' },
+    start_diagnosis: { zh: '开始辨证', en: 'Start Diagnosis' },
+    birth_ganzhi: { zh: '出生干支', en: 'Birth Gan-Zhi' },
+    lunar_date: { zh: '农历（阴历）', en: 'Lunar Date' },
+    solar_date: { zh: '公历（阳历）', en: 'Solar Date' },
+    yunqi_analysis: { zh: '五运六气分析', en: 'Five Movements & Six Qi Analysis' },
+    disclaimer_title: { zh: '免责声明', en: 'Disclaimer' },
+    disclaimer_text: { zh: '本项目为传统医学文化的算法化研究与教学演示，不构成任何医疗建议。所有输出仅供研究、学习与讨论，不能替代专业医师的诊断与治疗。', en: 'This is an algorithmic research and educational demonstration of traditional medicine culture. It does NOT constitute medical advice. All outputs are for study and discussion only and cannot replace professional diagnosis and treatment.' },
+    four_zhen_title: { zh: '四诊合参（可选填）', en: 'Four Diagnoses (Optional)' },
+    disclaimer_title: { zh: '免责声明', en: 'Disclaimer' },
+    disclaimer_text: { zh: '本项目为传统医学文化的算法化研究与教学演示，不构成任何医疗建议。所有输出仅供研究、学习与讨论，不能替代专业医师的诊断与治疗。', en: 'This is an algorithmic research and educational demonstration of traditional medicine culture. It does NOT constitute medical advice. All outputs are for study and discussion only and cannot replace professional diagnosis and treatment.' },
+    open_source: { zh: '开源项目 · MIT License', en: 'Open Source · MIT License' },
+    bagang_title: { zh: '八纲辨证', en: 'Ba-Gang Diagnosis' },
+    pattern: { zh: '证型', en: 'Pattern' },
+    yin_yang: { zh: '阴阳', en: 'Yin-Yang' },
+    cold_heat: { zh: '寒热', en: 'Cold-Heat' },
+    deficiency_excess: { zh: '虚实', en: 'Deficiency-Excess' },
+    interior_exterior: { zh: '表里', en: 'Interior-Exterior' },
+    treatment_principle: { zh: '治则', en: 'Treatment Principle' },
+    diet_recommendation: { zh: '饮食调理', en: 'Dietary Recommendations' },
+    acupoints: { zh: '穴位按摩', en: 'Acupoints' },
+    tangtou_title: { zh: '方剂详情', en: 'Formula Details' },
+    tangtou_source: { zh: '出处', en: 'Source' },
+    tangtou_ge: { zh: '汤头歌诀', en: 'Formula Verse' },
+    tangtou_chengfen: { zh: '成分', en: 'Ingredients' },
+    tangtou_gongyong: { zh: '功用', en: 'Functions' },
+    tangtou_zhuzhi: { zh: '主治', en: 'Indications' },
+    // 五运六气
+    wuyun_analysis: { zh: '五运六气完整分析', en: 'Complete Five Movements & Six Qi Analysis' },
+    birth_wuyun: { zh: '出生年五运', en: 'Birth Year Five Movements' },
+    current_wuyun: { zh: '当前年五运', en: 'Current Year Five Movements' },
+    birth_liuqi: { zh: '出生年六气', en: 'Birth Year Six Qi' },
+    current_liuqi: { zh: '当前年六气', en: 'Current Year Six Qi' },
+    zhu_yun: { zh: '主运', en: 'Principal Movement' },
+    ke_yun: { zh: '客运', en: 'Guest Movement' },
+    zhu_qi: { zh: '主气', en: 'Principal Qi' },
+    ke_qi: { zh: '客气', en: 'Guest Qi' },
+    sui_yun: { zh: '岁运', en: 'Yearly Movement' },
+    si_tian: { zh: '司天', en: 'Controlling Heaven' },
+    zai_quan: { zh: '在泉', en: 'Dominating Earth' },
+    // 动态郁点
+    dynamic_yudian_title: { zh: '六气刹车动态郁点演算', en: 'Six-Qi Brake Dynamic Stagnation Point Calculation' },
+    you_dian: { zh: '诱点（动力源）', en: 'Trigger Point (Power Source)' },
+    yu_dian: { zh: '郁点（被压制）', en: 'Stagnation Point (Suppressed)' },
+    core_zangfu: { zh: '核心受损脏腑', en: 'Core Affected Organ' },
+    channels: { zh: '最先受累经络', en: 'First Affected Channels' },
+    tongshi: { zh: '同使备份', en: 'Backup Partner' },
+    tongshi_warning: { zh: '同使预警', en: 'Backup Warning' },
+    high_risk_period: { zh: '高发期', en: 'High-Risk Period' },
+    worsening_period: { zh: '加重期', en: 'Worsening Period' },
+    important_tip: { zh: '重要提示', en: 'Important Note' },
+    zhili_title: { zh: '对治法则', en: 'Treatment Principles' },
+    principle: { zh: '调理原则', en: 'Regulation Principle' },
+    recommended_food: { zh: '推荐食物', en: 'Recommended Foods' },
+    taboo_food: { zh: '禁忌食物', en: 'Taboo Foods' },
+    recipes: { zh: '推荐食谱', en: 'Recommended Recipes' },
+    core_acupoints: { zh: '核心穴位', en: 'Core Acupoints' },
+    acupoint_method: { zh: '穴位用法', en: 'Acupoint Method' },
+    lifestyle: { zh: '生活调理', en: 'Lifestyle Regulation' },
+    meridian_care: { zh: '经络调理', en: 'Meridian Care' },
+    // 六气治则
+    liuqi_rule_title: { zh: '五运六气治则', en: 'Five Movements & Six Qi Treatment Principle' },
+    pattern: { zh: '格局', en: 'Pattern' },
+    affected_organs: { zh: '病在脏腑', en: 'Affected Organs' },
+    common_symptoms: { zh: '高发症状', en: 'Common Symptoms' },
+    treatment_principle: { zh: '治则', en: 'Treatment Principle' },
+    recommended_flavors: { zh: '推荐性味', en: 'Recommended Flavors & Natures' },
+    onset_title: { zh: '发病时间（可选）', en: 'Onset Time (Optional)' },
+    onset_year: { zh: '发病年', en: 'Onset Year' },
+    onset_month: { zh: '发病月', en: 'Onset Month' },
+    onset_day: { zh: '发病日', en: 'Onset Day' },
+    onset_wuyun: { zh: '发病年五运六气', en: 'Onset Year Five Movements & Six Qi' },
+    onset_si_tian: { zh: '发病年司天', en: 'Onset Year Controlling Heaven' },
+    onset_zai_quan: { zh: '发病年在泉', en: 'Onset Year Dominating Earth' },
+    daily_tips: { zh: '日常建议', en: 'Daily Tips' }
+  };
+
+  // 语言切换
+  document.getElementById('btn-zh').addEventListener('click', function(){ setLang('zh'); });
+  document.getElementById('btn-en').addEventListener('click', function(){ setLang('en'); });
+
+  // 初始化语言（默认英文）
+  setLang('en');
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.documentElement.lang = lang;
+    // 应用语言（使用页面内字典）
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      var entry = DICT[key];
+      if (entry) {
+        el.textContent = (lang === 'en') ? entry.en : entry.zh;
+      } else {
+        // 兜底：查 ui.js 中英映射（key 为中文时）
+        var t = Engine.ui[key];
+        if (lang === 'en' && t) el.textContent = t;
+        else if (lang === 'zh' && el.getAttribute('data-zh')) el.textContent = el.getAttribute('data-zh');
+        else if (!el.getAttribute('data-zh')) el.setAttribute('data-zh', el.textContent);
+      }
+    });
+    // 重新渲染结果区（如果已有结果）
+    if (lastResult) renderResult(lastResult);
+  }
+
+  // 运行辨证
+  window.runDiagnosis = function() {
+    var year = parseInt(document.getElementById('year').value, 10);
+    var month = parseInt(document.getElementById('month').value, 10);
+    var day = parseInt(document.getElementById('day').value, 10);
+    var hour = parseInt(document.getElementById('hour').value, 10);
+    var gender = document.getElementById('gender').value;
+    var errBox = document.getElementById('error-box');
+
+    // 校验
+    if (!year || !month || !day || hour === undefined || isNaN(hour) || year < 1900 || year > 2100) {
+      showError(errBox, currentLang === 'en' ? 'Please fill in all fields' : '请填写完整信息');
+      return;
+    }
+    if (month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23) {
+      showError(errBox, currentLang === 'en' ? 'Invalid date or time' : '日期或时间无效');
+      return;
+    }
+    hideError(errBox);
+
+    // 收集四诊数据
+    var fourZhen = {
+      wang: {
+        tongue: {
+          color: document.getElementById('wang-tongue-color').value,
+          coatingColor: document.getElementById('wang-coating-color').value,
+          coatingThickness: document.getElementById('wang-coating-thickness').value
+        },
+        face: { color: document.getElementById('wang-face-color').value },
+        nail: { color: document.getElementById('wang-nail-color').value }
+      },
+      wen: {
+        voice: document.getElementById('wen-voice').value,
+        smell: document.getElementById('wen-smell').value
+      },
+      wen2: {
+        stool: document.getElementById('wen2-stool').value,
+        urine: document.getElementById('wen2-urine').value,
+        appetite: document.getElementById('wen2-appetite').value,
+        sleep: document.getElementById('wen2-sleep').value,
+        coldHeat: document.getElementById('wen2-coldheat').value,
+        thirst: document.getElementById('wen2-thirst').value,
+        sweat: document.getElementById('wen2-sweat').value
+      },
+      qie: { pulse: document.getElementById('qie-pulse').value }
+    };
+    // 发病日期（可选）
+    var onsetYear = parseInt(document.getElementById('onset-year').value, 10);
+    var onsetMonth = parseInt(document.getElementById('onset-month').value, 10);
+    var onsetDay = parseInt(document.getElementById('onset-day').value, 10);
+    var onsetParams = {};
+    if (onsetYear && onsetYear >= 1900 && onsetYear <= 2100) {
+      onsetParams = { onsetYear: onsetYear, onsetMonth: onsetMonth || 1, onsetDay: onsetDay || 15 };
+    }
+    var result = Engine.diagnose(Object.assign({ year:year, month:month, day:day, hour:hour, minute:0, gender:gender, symptoms:'', fourZhen:fourZhen }, onsetParams));
+    if (result.error) { showError(errBox, result.error); return; }
+
+    renderResult(result);
+  };
+
+
+  // 四诊合参折叠
+  function toggleFourZhen() {
+    var c = document.getElementById('four-zhen-content');
+    var a = document.getElementById('four-zhen-arrow');
+    if (c.style.display === 'none') { c.style.display = 'block'; a.textContent = '▲'; }
+    else { c.style.display = 'none'; a.textContent = '▼'; }
+  }
+  document.getElementById('four-zhen-toggle').addEventListener('click', toggleFourZhen);
+
+  function showError(box, msg) { box.textContent = msg; box.style.display = 'block'; }
+  function hideError(box) { box.style.display = 'none'; }
+
+  // 渲染结果
+  function renderResult(result) {
+    lastResult = result;
+    document.getElementById('result-area').style.display = 'block';
+
+    // 出生干支（保持原文，干支是专有名词）
+    var gz = result.birthGanZhi || {};
+    var gzBox = document.getElementById('birth-ganzhi');
+    gzBox.innerHTML = '';
+    [
+      ['Year', gz.year], ['Month', gz.month], ['Day', gz.day], ['Hour', gz.hour]
+    ].forEach(function(pair) {
+      var d = document.createElement('div');
+      d.className = 'ganzhi-box';
+      var label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = pair[0];
+      var val = document.createElement('div');
+      val.className = 'value';
+      val.textContent = pair[1] || '-';
+      d.appendChild(label); d.appendChild(val);
+      gzBox.appendChild(d);
+    });
+
+    // 农历（阴阳历对照）
+    var lunarInfo = gz.lunar || {};
+    var lunarBox = document.getElementById('lunar-date');
+    if (lunarBox) {
+      var enLunar = currentLang === 'en';
+      var lunarText = lunarInfo.full || '';
+      var solarText = (result.basicInfo && result.basicInfo.birthDate) ? result.basicInfo.birthDate : '';
+      lunarBox.innerHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap;">'
+        + '<div><span style="color:#8a5a2b;font-size:12px;">' + (enLunar ? 'Solar (Yang)' : '公历（阳历）') + ':</span> <span style="font-size:14px;font-weight:600;">' + solarText + '</span></div>'
+        + '<div><span style="color:#8a5a2b;font-size:12px;">' + (enLunar ? 'Lunar (Yin)' : '农历（阴历）') + ':</span> <span style="font-size:14px;font-weight:600;">' + lunarText + '</span></div>'
+        + '</div>';
+    }
+
+    // 五运六气
+    var yq = result.yunqi || {};
+    renderYunqi(yq);
+
+    // 八纲辨证
+    var bg = result.baGang || {};
+    renderBaGang(bg);
+
+    // 五运六气完整分析
+    if (result.birthWuyunFull && result.currentWuyunFull) {
+      renderWuyun(result.birthWuyunFull, result.currentWuyunFull, result.onsetWuyunFull, result.currentStep);
+    }
+    // 动态郁点
+    if (result.dynamicYuDian) {
+      renderDynamicYuDian(result.dynamicYuDian);
+    } else {
+      document.getElementById('yudian-card').style.display = 'none';
+    }
+    // 六气治则
+    if (result.liuqiRule) {
+      renderLiuqiRule(result.liuqiRule);
+    } else {
+      document.getElementById('liuqi-rule-card').style.display = 'none';
+    }
+
+    // 方剂详情
+    if (result.tangTouList && result.tangTouList.length > 0) {
+      document.getElementById('tangtou-card').style.display = 'block';
+      renderTangTou(result.tangTouList);
+    } else {
+      document.getElementById('tangtou-card').style.display = 'none';
+    }
+
+  }
+
+  function renderYunqi(yq) {
+    var el = document.getElementById('yunqi-detail');
+    var birth = yq.birth || {};
+    var current = yq.current || {};
+    var birthYunqi = (yq.yunqi && yq.yunqi.birth) || {};
+    var currentYunqi = (yq.yunqi && yq.yunqi.current) || {};
+    var en = currentLang === 'en';
+
+    var html = '';
+    // 先天运气
+    html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:12px;">'
+      + (en ? 'Birth YunQi (Innate)' : '先天运气（出生）') + '</h3><div class="result-grid">';
+    html += resultItem(en ? 'Si Tian (Heavenly Control)' : '司天', birthYunqi.siTian);
+    html += resultItem(en ? 'Zai Quan (Earthly Spring)' : '在泉', birthYunqi.zaiQuan);
+    html += resultItem(en ? 'Host Qi' : '主气', birthYunqi.zhuQi);
+    html += resultItem(en ? 'Guest Qi' : '客气', birthYunqi.keQi);
+    html += '</div></div>';
+
+    // 当前运气
+    html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:12px;">'
+      + (en ? 'Current YunQi' : '当前运气') + '</h3><div class="result-grid">';
+    html += resultItem(en ? 'Si Tian (Heavenly Control)' : '司天', currentYunqi.siTian);
+    html += resultItem(en ? 'Zai Quan (Earthly Spring)' : '在泉', currentYunqi.zaiQuan);
+    html += resultItem(en ? 'Host Qi' : '主气', currentYunqi.zhuQi);
+    html += resultItem(en ? 'Guest Qi' : '客气', currentYunqi.keQi);
+    html += '</div></div>';
+
+    el.innerHTML = html;
+  }
+
+  function renderBaGang(bg) {
+    var el = document.getElementById('bagang-detail');
+    if (!el) return;
+    var en = currentLang === 'en';
+    var baGang = (bg.baGang) || {};
+    var zhifa = (bg.zhifa) || {};
+    var dict = DICT;
+
+    var html = '';
+
+    // 证型 + 四纲
+    html += '<div class="result-section"><div class="result-grid">';
+    var fullTypeText = en ? (window.WuYunEngine.translateTerm(baGang.fullType) || baGang.fullType) : baGang.fullType;
+    html += resultItem(en ? dict.pattern.en : dict.pattern.zh, fullTypeText);
+    html += resultItem(en ? dict.yin_yang.en : dict.yin_yang.zh, baGang.yinYang);
+    html += resultItem(en ? dict.cold_heat.en : dict.cold_heat.zh, baGang.hanRe);
+    html += resultItem(en ? dict.deficiency_excess.en : dict.deficiency_excess.zh, baGang.xuShi);
+    html += resultItem(en ? dict.interior_exterior.en : dict.interior_exterior.zh, baGang.biaoLi);
+    html += '</div></div>';
+
+    // 治则
+    if (zhifa.zhiZe) {
+      html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:8px;">'
+        + (en ? dict.treatment_principle.en : dict.treatment_principle.zh) + '</h3>';
+      var zhiZeText = en ? (window.WuYunEngine.translateZhifa(zhifa.zhiZe) || zhifa.zhiZe) : zhifa.zhiZe;
+      html += '<div style="padding:10px 14px;background:#faf6f0;border-radius:6px;font-size:14px;line-height:1.6;">' + zhiZeText + '</div></div>';
+    }
+
+    // 饮食调理
+    if (zhifa.dietList && zhifa.dietList.length > 0) {
+      html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:8px;">'
+        + (en ? dict.diet_recommendation.en : dict.diet_recommendation.zh) + '</h3>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+      zhifa.dietList.forEach(function(item) {
+        var t = en ? (window.WuYunEngine.dietMap[item] || item) : item;
+        html += '<span style="padding:4px 12px;background:#e8f5e9;border-radius:12px;font-size:13px;">' + t + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    // 穴位按摩
+    if (zhifa.acupoints && zhifa.acupoints.length > 0) {
+      html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:8px;">'
+        + (en ? dict.acupoints.en : dict.acupoints.zh) + '</h3>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+      zhifa.acupoints.forEach(function(item) {
+        var t = en ? (window.WuYunEngine.acupointMap[item] || item) : item;
+        html += '<span style="padding:4px 12px;background:#fff3e0;border-radius:12px;font-size:13px;">' + t + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    // 日常建议
+    if (zhifa.dailyTips && zhifa.dailyTips.length > 0) {
+      html += '<div class="result-section"><h3 style="font-size:14px;color:#8a5a2b;margin-bottom:8px;">'
+        + (en ? dict.daily_tips.en : dict.daily_tips.zh) + '</h3>';
+      html += '<ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#555;">';
+      zhifa.dailyTips.forEach(function(item) {
+        var t = en ? (window.WuYunEngine.dailyTipMap[item] || item) : item;
+        html += '<li>' + t + '</li>';
+      });
+      html += '</ul></div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+
+
+  // ========== 五运六气完整渲染 ==========
+  function renderWuyun(birthData, currentData, onsetData, currentStep) {
+    var el = document.getElementById('wuyun-detail');
+    if (!el) return;
+    var en = currentLang === 'en';
+    var dict = DICT;
+    var html = '';
+
+    // 岁运
+    html += '<div style="margin-bottom:16px;">';
+    html += '<div style="font-weight:600;color:#5a3a1a;margin-bottom:8px;">' + (en ? dict.sui_yun.en : dict.sui_yun.zh) + '</div>';
+    html += '<div style="display:flex;gap:20px;flex-wrap:wrap;">';
+    html += '<div><span style="color:#8a5a2b;">' + (en ? 'Birth: ' : '出生：') + '</span>' + birthData.suiYun.wuxing + '运 ' + birthData.suiYun.taiGuoBuJi + ' (' + birthData.suiYun.tianGan + ')</div>';
+    html += '<div><span style="color:#8a5a2b;">' + (en ? 'Current: ' : '当前：') + '</span>' + currentData.suiYun.wuxing + '运 ' + currentData.suiYun.taiGuoBuJi + ' (' + currentData.suiYun.tianGan + ')</div>';
+    html += '</div></div>';
+
+    // 主运表格
+    html += renderYunTable(en ? dict.zhu_yun.en : dict.zhu_yun.zh, birthData.zhuYun, currentData.zhuYun, onsetData ? onsetData.zhuYun : null, currentStep ? currentStep.yun : null, currentStep ? currentStep.onsetYun : null);
+    // 客运表格
+    html += renderYunTable(en ? dict.ke_yun.en : dict.ke_yun.zh, birthData.keYun, currentData.keYun, onsetData ? onsetData.keYun : null, currentStep ? currentStep.yun : null, currentStep ? currentStep.onsetYun : null);
+    // 主气表格
+    html += renderQiTable(en ? dict.zhu_qi.en : dict.zhu_qi.zh, birthData.zhuQi, currentData.zhuQi, onsetData ? onsetData.zhuQi : null, currentStep ? currentStep.qi : null, currentStep ? currentStep.onsetQi : null);
+    // 客气表格
+    html += renderQiTable(en ? dict.ke_qi.en : dict.ke_qi.zh, birthData.keQi, currentData.keQi, onsetData ? onsetData.keQi : null, currentStep ? currentStep.qi : null, currentStep ? currentStep.onsetQi : null);
+
+    el.innerHTML = html;
+  }
+
+  function renderYunTable(title, birthList, currentList, onsetList, currentStepIdx, onsetStepIdx) {
+    var html = '<div style="margin-bottom:16px;">';
+    html += '<div style="font-weight:600;color:#5a3a1a;margin-bottom:6px;">' + title + '</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+    html += '<tr style="background:#f5efe6;"><th style="padding:4px;border:1px solid #ddd;text-align:left;">' + (currentLang==='en'?'Step':'步骤') + '</th><th style="padding:4px;border:1px solid #ddd;">' + (currentLang==='en'?'Birth':'出生') + '</th><th style="padding:4px;border:1px solid #ddd;">' + (currentLang==='en'?'Current':'当前') + '</th>' + (onsetList ? '<th style="padding:4px;border:1px solid #ddd;background:#fff0f0;">' + (currentLang==='en'?'Onset':'发病') + '</th>' : '') + '</tr>';
+    for (var i = 0; i < 5; i++) {
+      var b = birthList[i] || {};
+      var c = currentList[i] || {};
+      var isCurrent = (currentStepIdx !== undefined && currentStepIdx !== null && i === currentStepIdx);
+      var isOnset = (onsetStepIdx !== undefined && onsetStepIdx !== null && i === onsetStepIdx);
+      var rowStyle = isCurrent ? 'background:#fff3cd;font-weight:600;' : (isOnset ? 'background:#ffe0e0;' : '');
+      var arrow = isCurrent ? '→ ' : (isOnset ? '◆ ' : '');
+      html += '<tr style="' + rowStyle + '">';
+      html += '<td style="padding:4px;border:1px solid #ddd;color:#8a5a2b;">' + arrow + (b.step || c.step || '') + (isCurrent ? ' (当前)' : '') + (isOnset ? ' (发病)' : '') + '</td>';
+      var bWuxing = b.wuxing ? Engine.translateTerm(b.wuxing) : '';
+      html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;font-size:11px;">' + (b.gan ? Engine.translateTerm(b.gan) : '') + ' ' + bWuxing + '</td>';
+      var cWuxing = c.wuxing ? Engine.translateTerm(c.wuxing) : '';
+      html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;font-size:11px;">' + (c.gan ? Engine.translateTerm(c.gan) : '') + ' ' + cWuxing + '</td>';
+      if (onsetList) { var o = onsetList[i] || {}; var oWuxing = o.wuxing ? Engine.translateTerm(o.wuxing) : ''; html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;background:#fffafa;font-size:11px;">' + (o.gan ? Engine.translateTerm(o.gan) : '') + ' ' + oWuxing + '</td>'; }
+      html += '</tr>';
+    }
+    html += '</table></div>';
+    return html;
+  }
+
+  function renderQiTable(title, birthList, currentList, onsetList, currentStepIdx, onsetStepIdx) {
+    var html = '<div style="margin-bottom:16px;">';
+    html += '<div style="font-weight:600;color:#5a3a1a;margin-bottom:6px;">' + title + '</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+    html += '<tr style="background:#f5efe6;"><th style="padding:4px;border:1px solid #ddd;text-align:left;">' + (currentLang==='en'?'Step':'步骤') + '</th><th style="padding:4px;border:1px solid #ddd;">' + (currentLang==='en'?'Birth':'出生') + '</th><th style="padding:4px;border:1px solid #ddd;">' + (currentLang==='en'?'Current':'当前') + '</th></tr>';
+    for (var i = 0; i < 6; i++) {
+      var b = birthList[i] || {};
+      var c = currentList[i] || {};
+      var isCurrentQi = (currentStepIdx !== undefined && currentStepIdx !== null && i === currentStepIdx);
+      var isOnsetQi = (onsetStepIdx !== undefined && onsetStepIdx !== null && i === onsetStepIdx);
+      var rowStyleQi = isCurrentQi ? 'background:#fff3cd;font-weight:600;' : (isOnsetQi ? 'background:#ffe0e0;' : '');
+      var arrowQi = isCurrentQi ? '→ ' : (isOnsetQi ? '◆ ' : '');
+      html += '<tr style="' + rowStyleQi + '">';
+      html += '<td style="padding:4px;border:1px solid #ddd;color:#8a5a2b;">' + arrowQi + (b.step || c.step || '') + (isCurrentQi ? ' (当前)' : '') + (isOnsetQi ? ' (发病)' : '') + '</td>';
+      var bLiuqi = b.liuqi ? Engine.translateTerm(b.liuqi) : '';
+      var bZhi = b.mainZhi ? Engine.translateTerm(b.mainZhi) : (b.dizhi ? Engine.translateTerm(b.dizhi) : '');
+      html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;font-size:11px;">' + bLiuqi + (bZhi ? ' (' + bZhi + ')' : '') + '</td>';
+      var cLiuqi = c.liuqi ? Engine.translateTerm(c.liuqi) : '';
+      var cZhi = c.mainZhi ? Engine.translateTerm(c.mainZhi) : (c.dizhi ? Engine.translateTerm(c.dizhi) : '');
+      html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;font-size:11px;">' + cLiuqi + (cZhi ? ' (' + cZhi + ')' : '') + '</td>';
+      if (onsetList) { var oq = onsetList[i] || {}; var oqLiuqi = oq.liuqi ? Engine.translateTerm(oq.liuqi) : ''; var oqZhi = oq.mainZhi ? Engine.translateTerm(oq.mainZhi) : (oq.dizhi ? Engine.translateTerm(oq.dizhi) : ''); html += '<td style="padding:4px;border:1px solid #ddd;text-align:center;background:#fffafa;font-size:11px;">' + oqLiuqi + (oqZhi ? ' (' + oqZhi + ')' : '') + '</td>'; }
+      html += '</tr>';
+    }
+    html += '</table></div>';
+    return html;
+  }
+
+  // ========== 动态郁点渲染 ==========
+  function renderDynamicYuDian(data) {
+    var el = document.getElementById('yudian-detail');
+    if (!el || !data) return;
+    document.getElementById('yudian-card').style.display = 'block';
+    var en = currentLang === 'en';
+    var dict = DICT;
+    var html = '';
+
+    // 诱点
+    html += '<div style="margin-bottom:12px;padding:10px;background:#fff5f5;border-radius:6px;border-left:3px solid #d44;">';
+    html += '<div style="font-weight:600;color:#a33;margin-bottom:4px;">' + (en ? dict.you_dian.en : dict.you_dian.zh) + '</div>';
+    html += '<div style="font-size:13px;color:#444;">' + Engine.translateTerm(data.youDian.zhi) + '（' + Engine.translateTerm(data.youDian.liuqi) + '，' + Engine.translateTerm(data.youDian.coreZangfu) + '）</div>';
+    html += '<div style="font-size:12px;color:#666;margin-top:4px;">' + data.youDian.shuoMing + '</div>';
+    html += '</div>';
+
+    // 郁点
+    html += '<div style="margin-bottom:12px;padding:10px;background:#f0f5ff;border-radius:6px;border-left:3px solid #4472d4;">';
+    html += '<div style="font-weight:600;color:#3355a3;margin-bottom:4px;">' + (en ? dict.yu_dian.en : dict.yu_dian.zh) + '</div>';
+    html += '<div style="font-size:13px;color:#444;">' + Engine.translateTerm(data.yuDian.zhi) + '（' + Engine.translateTerm(data.yuDian.liuqi) + '，' + Engine.translateTerm(data.yuDian.coreZangfu) + '）</div>';
+    html += '<div style="font-size:12px;color:#666;margin-top:4px;"><span style="color:#8a5a2b;">' + (en ? dict.core_zangfu.en : dict.core_zangfu.zh) + '：</span>' + Engine.translateTerm(data.yuDian.coreZangfu) + '</div>';
+    html += '<div style="font-size:12px;color:#666;"><span style="color:#8a5a2b;">' + (en ? dict.channels.en : dict.channels.zh) + '：</span>' + data.yuDian.channelsDisplay + '</div>';
+    html += '<div style="font-size:12px;color:#666;"><span style="color:#8a5a2b;">' + (en ? dict.tongshi.en : dict.tongshi.zh) + '：</span>' + Engine.translateTerm(data.yuDian.tongshi) + '</div>';
+    html += '</div>';
+
+    // 同使预警
+    if (data.tongshiWarning) {
+      html += '<div style="margin-bottom:12px;padding:8px 10px;background:#fffbe6;border-radius:6px;font-size:12px;color:#8a6d00;">';
+      html += '<span style="font-weight:600;">' + (en ? dict.tongshi_warning.en : dict.tongshi_warning.zh) + '：</span>' + data.tongshiWarning.shuoMing;
+      html += '</div>';
+    }
+
+    // 发病时间
+    html += '<div style="margin-bottom:12px;padding:10px;background:#f9f5ef;border-radius:6px;">';
+    html += '<div style="font-size:12px;color:#8a5a2b;margin-bottom:4px;"><span style="font-weight:600;">' + (en ? dict.high_risk_period.en : dict.high_risk_period.zh) + '：</span>' + (data.faZuoShiJian.tongQiShiJian || []).join('、') + '月</div>';
+    html += '<div style="font-size:12px;color:#8a5a2b;margin-bottom:4px;"><span style="font-weight:600;">' + (en ? dict.worsening_period.en : dict.worsening_period.zh) + '：</span>' + (data.faZuoShiJian.jiaZhongShiJian || []).join('、') + '月</div>';
+    html += '<div style="font-size:12px;color:#666;">' + data.faZuoShiJian.shuoMing + '</div>';
+    html += '</div>';
+
+    // 对治法则
+    if (data.zhiLi) {
+      var z = data.zhiLi;
+      html += '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #ddd;">';
+      html += '<div style="font-weight:600;color:#5a3a1a;margin-bottom:8px;">' + (en ? dict.zhili_title.en : dict.zhili_title.zh) + '</div>';
+      html += '<div style="font-size:13px;color:#444;margin-bottom:6px;"><span style="color:#8a5a2b;">' + (en ? dict.principle.en : dict.principle.zh) + '：</span>' + z.principle + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#2d7a2d;">' + (en ? dict.recommended_food.en : dict.recommended_food.zh) + '：</span>' + (z.yinshi.recommendedStr || '') + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#a33;">' + (en ? dict.taboo_food.en : dict.taboo_food.zh) + '：</span>' + (z.yinshi.tabooStr || '') + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#8a5a2b;">' + (en ? dict.recipes.en : dict.recipes.zh) + '：</span>' + (z.yinshi.recipesStr || '') + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#8a5a2b;">' + (en ? dict.core_acupoints.en : dict.core_acupoints.zh) + '：</span>' + (z.xuewei.mainStr || '') + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#8a5a2b;">' + (en ? dict.acupoint_method.en : dict.acupoint_method.zh) + '：</span>' + (z.xuewei.method || '') + '</div>';
+      html += '<div style="font-size:12px;color:#444;margin-bottom:4px;"><span style="color:#8a5a2b;">' + (en ? dict.lifestyle.en : dict.lifestyle.zh) + '：</span>' + z.shenghuo + '</div>';
+      html += '<div style="font-size:12px;color:#444;"><span style="color:#8a5a2b;">' + (en ? dict.meridian_care.en : dict.meridian_care.zh) + '：</span>' + z.jingluo + '</div>';
+      html += '</div>';
+    }
+
+    // 重要提示
+    html += '<div style="margin-top:12px;padding:8px 10px;background:#e8f5e9;border-radius:6px;font-size:12px;color:#2d7a2d;font-style:italic;">';
+    html += data.importantTip;
+    html += '</div>';
+
+    el.innerHTML = html;
+  }
+
+  // ========== 六气治则渲染 ==========
+  function renderLiuqiRule(data) {
+    var el = document.getElementById('liuqi-rule-detail');
+    if (!el || !data) {
+      document.getElementById('liuqi-rule-card').style.display = 'none';
+      return;
+    }
+    document.getElementById('liuqi-rule-card').style.display = 'block';
+    var en = currentLang === 'en';
+    var dict = DICT;
+    var html = '';
+
+    html += '<div style="margin-bottom:8px;font-size:14px;font-weight:600;color:#5a3a1a;">' + (en ? dict.pattern.en : dict.pattern.zh) + '：' + data.qi_name + data.type + '</div>';
+    html += '<div style="margin-bottom:6px;font-size:13px;color:#444;"><span style="color:#8a5a2b;">' + (en ? dict.affected_organs.en : dict.affected_organs.zh) + '：</span>' + data.bing_zai + '</div>';
+    html += '<div style="margin-bottom:6px;font-size:13px;color:#444;line-height:1.6;"><span style="color:#8a5a2b;">' + (en ? dict.common_symptoms.en : dict.common_symptoms.zh) + '：</span>' + data.zhu_bing + '</div>';
+    html += '<div style="margin-bottom:6px;font-size:14px;color:#a33;font-weight:600;"><span style="color:#8a5a2b;">' + (en ? dict.treatment_principle.en : dict.treatment_principle.zh) + '：</span>' + data.zhi_ze + '</div>';
+    html += '<div style="font-size:13px;color:#444;"><span style="color:#8a5a2b;">' + (en ? dict.recommended_flavors.en : dict.recommended_flavors.zh) + '：</span>' + (data.xing_wei || []).join('、') + '</div>';
+
+    el.innerHTML = html;
+  }
+
+  function renderTangTou(list) {
+    var el = document.getElementById('tangtou-detail');
+    if (!el) return;
+    var en = currentLang === 'en';
+    var dict = DICT;
+    var html = '';
+
+    list.forEach(function(formula, idx) {
+      var isOpen = idx === 0; // 第一个默认展开
+      html += '<div style="margin-bottom:12px;border:1px solid #e0d5c5;border-radius:8px;overflow:hidden;">';
+      // 标题栏（可点击展开）
+      html += '<div onclick="toggleTangTou(' + idx + ')" style="cursor:pointer;padding:10px 14px;background:#faf6f0;display:flex;justify-content:space-between;align-items:center;">';
+      html += '<span style="font-weight:600;font-size:15px;color:#5a3a1a;">' + (idx + 1) + '. ' + formula.name + '</span>';
+      html += '<span style="font-size:12px;color:#8a5a2b;">' + formula.source + ' <span id="tangtou-arrow-' + idx + '">' + (isOpen ? '▲' : '▼') + '</span></span>';
+      html += '</div>';
+      // 详情内容
+      html += '<div id="tangtou-content-' + idx + '" style="padding:12px 14px;' + (isOpen ? '' : 'display:none;') + '">';
+      // 汤头歌诀
+      if (formula.ge) {
+        html += '<div style="margin-bottom:10px;"><div style="font-size:12px;color:#8a5a2b;margin-bottom:4px;">' + (en ? dict.tangtou_ge.en : dict.tangtou_ge.zh) + '</div>';
+        html += '<div style="font-size:13px;line-height:1.8;color:#444;font-style:italic;background:#f9f5ef;padding:8px 12px;border-radius:4px;">' + formula.ge + '</div></div>';
+      }
+      // 成分
+      if (formula.chengfen) {
+        html += '<div style="margin-bottom:8px;"><span style="font-size:12px;color:#8a5a2b;">' + (en ? dict.tangtou_chengfen.en : dict.tangtou_chengfen.zh) + '：</span>';
+        html += '<span style="font-size:13px;color:#444;">' + formula.chengfen + '</span></div>';
+      }
+      // 功用
+      if (formula.gongyong) {
+        html += '<div style="margin-bottom:8px;"><span style="font-size:12px;color:#8a5a2b;">' + (en ? dict.tangtou_gongyong.en : dict.tangtou_gongyong.zh) + '：</span>';
+        html += '<span style="font-size:13px;color:#444;">' + formula.gongyong + '</span></div>';
+      }
+      // 主治
+      if (formula.zhuzhi) {
+        html += '<div style="margin-bottom:4px;"><span style="font-size:12px;color:#8a5a2b;">' + (en ? dict.tangtou_zhuzhi.en : dict.tangtou_zhuzhi.zh) + '：</span>';
+        html += '<span style="font-size:13px;color:#444;line-height:1.6;">' + formula.zhuzhi + '</span></div>';
+      }
+      html += '</div></div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  function toggleTangTou(idx) {
+    var content = document.getElementById('tangtou-content-' + idx);
+    var arrow = document.getElementById('tangtou-arrow-' + idx);
+    if (content.style.display === 'none') {
+      content.style.display = 'block';
+      arrow.textContent = '▲';
+    } else {
+      content.style.display = 'none';
+      arrow.textContent = '▼';
+    }
+  }
+
+  function resultItem(k, v) {
+    var en = currentLang === 'en';
+    var val = (v === undefined || v === null || v === '') ? (en ? 'Pending' : '待计算') : v;
+    // 如果当前是英文且值还是中文，尝试翻译
+    if (en && /[\u4e00-\u9fff]/.test(String(val))) {
+      var t = Engine.translateTerm(String(val));
+      if (!t) {
+        // 整词无译：若为2字且每字都可译（干支等组合词），逐字翻译
+        var s = String(val);
+        if (s.length === 2) {
+          var a = Engine.translateTerm(s[0]);
+          var b = Engine.translateTerm(s[1]);
+          if (a && b) t = a + ' ' + b;
+        }
+      }
+      if (t) val = t;
+    }
+    return '<div class="result-item"><div class="k">' + k + '</div><div class="v">' + val + '</div></div>';
+  }
+})();
+</script>
+</body>
+</html>
